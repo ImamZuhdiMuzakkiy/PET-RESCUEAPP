@@ -1,6 +1,7 @@
 import js from "@eslint/js";
 import globals from "globals";
 import prettier from "eslint-config-prettier";
+import pluginQuery from "@tanstack/eslint-plugin-query";
 
 /** type {import('eslint).Linter.Config[]} */
 export default [
@@ -13,6 +14,10 @@ export default [
       },
     },
   },
+  reactPlugin.configs.flat["jsx-runtime"],
+  ...pluginQuery.configs["flat/recommended"],
+  //kalo pluginQuerry ini supaya dapat mendeteksi kalo ada kesalahan dalam menggunakan fungsi tanstack querry.
+
   {
     files: ["**/*.js", "**/*.jsx"],
     languageOptions: {
