@@ -1,4 +1,5 @@
-import { useState } from "react";
+// import { useState } from "react";
+import { Suspense, useState, use } from "react"; // import Suspense and use
 import { useQuery } from "@tanstack/react-query";
 import { createLazyFileRoute } from "@tanstack/react-router";
 import getPastOrders from "../api/getPastOrders";
@@ -11,15 +12,41 @@ export const Route = createLazyFileRoute("/past")({
   component: ErrorBoundaryWrappedPastOrderRoutes,
 });
 
+// function ErrorBoundaryWrappedPastOrderRoutes() {
+//   return (
+//     <ErrorBoundary>
+//       <PastOrdersRoute />
+//     </ErrorBoundary>
+//   );
+// }
+
 function ErrorBoundaryWrappedPastOrderRoutes() {
+  const [page, setPage] = useState(1);
+  const loadedPromise = useQuery({
+    queryKey: ["past-orders", page],
+    queryFn: () => getPastOrders(page),
+    staleTime: 30000,
+  }).promise;
   return (
     <ErrorBoundary>
-      <PastOrdersRoute />
+      <Suspense
+        fallback={
+          <div className="past-orders">
+            <h2>Loading Past Orders …</h2>
+          </div>
+        }
+      >
+        <PastOrdersRoute
+          loadedPromise={loadedPromise}
+          page={page}
+          setPage={setPage}
+        />
+      </Suspense>
     </ErrorBoundary>
   );
 }
 
-function PastOrdersRoute() {
+function PastOrdersRoute({ loadedPromise, page, setPage }) {
   //useQueru buat manggil fungsi getPastOrders.
   //useQuerry menerima sebuah object.atribut wajib adalah queryKey dan queryFn(Function)
   // querryKey itu menerima suatu element. element pertama adalah label Querry (nama query yang kita eksekusi) dan kedua adalah payload, dalam hal ini adalah page. karena nantinya kita bakal ada pagination, maka kita perlu atur page mana yang mau kita akses. Defaultnya adalah "page 1" sesuai useState page diatas.
@@ -29,6 +56,7 @@ function PastOrdersRoute() {
     currency: "USD",
   });
   const [focusedOrder, setFocusedOrder] = useState();
+  const data = use(loadedPromise);
 
   const { isLoading: isLoadingPastOrder, data: pastOrderData } = useQuery({
     queryKey: ["past-order", focusedOrder],
@@ -36,19 +64,19 @@ function PastOrdersRoute() {
     enabled: !!focusedOrder,
     staleTime: 24 * 60 * 60 * 1000, // one day in milliseconds,
   });
-  const [page, setPage] = useState(1);
-  const { isLoading, data } = useQuery({
-    queryKey: ["past-orders", page],
-    queryFn: () => getPastOrders(page),
-    staleTime: 30000,
-  });
-  if (isLoading) {
-    return (
-      <div className="past-orders">
-        <h2>LOADING …</h2>
-      </div>
-    );
-  }
+  // const [page, setPage] = useState(1);
+  // const { isLoading, data } = useQuery({
+  //   queryKey: ["past-orders", page],
+  //   queryFn: () => getPastOrders(page),
+  //   staleTime: 30000,
+  // });
+  // if (isLoading) {
+  //   return (
+  //     <div className="past-orders">
+  //       <h2>LOADING …</h2>
+  //     </div>
+  //   );
+  // }
   return (
     <div className="past-orders">
       <table>

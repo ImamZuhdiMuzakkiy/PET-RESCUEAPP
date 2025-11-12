@@ -22,6 +22,15 @@ function Order() {
   const [loading, setLoading] = useState(true);
   // const [cart, setCart] = useState([]);
 
+  function addToCart() {
+    setCart([...cart, { pizza: selectedPizza, size: pizzaSize, price }]);
+    // "use server";
+    // sql(`INSERT INTO cart (user_id, pizza_type, size) VALUES ($1, $2)`, [
+    //   formData.pizza_type,
+    //   formData.size,
+    // ]);
+  }
+
   let price, selectedPizza;
   if (!loading) {
     selectedPizza = pizzaTypes.find((pizza) => pizzaType === pizza.id);
@@ -66,7 +75,7 @@ function Order() {
   return (
     <div className="order">
       <h2>Create Order</h2>
-      <form
+      {/* <form
         onSubmit={(e) => {
           e.preventDefault();
           setCart([
@@ -75,7 +84,8 @@ function Order() {
           ]);
         }}
         action=""
-      >
+      > */}
+      <form action={addToCart}>
         <div>
           <div>
             <label htmlFor="pizza-type">Pizza Type</label>
