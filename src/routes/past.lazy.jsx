@@ -4,10 +4,20 @@ import { createLazyFileRoute } from "@tanstack/react-router";
 import getPastOrders from "../api/getPastOrders";
 import getPastOrder from "../api/getPastOrder";
 import Modal from "../Modal";
+import ErrorBoundary from "../ErrorBoundary";
 
+// replace Route export
 export const Route = createLazyFileRoute("/past")({
-  component: PastOrdersRoute,
+  component: ErrorBoundaryWrappedPastOrderRoutes,
 });
+
+function ErrorBoundaryWrappedPastOrderRoutes() {
+  return (
+    <ErrorBoundary>
+      <PastOrdersRoute />
+    </ErrorBoundary>
+  );
+}
 
 function PastOrdersRoute() {
   //useQueru buat manggil fungsi getPastOrders.
@@ -52,9 +62,11 @@ function PastOrdersRoute() {
         <tbody>
           {data.map((order) => (
             <tr key={order.order_id}>
-              <button onClick={() => setFocusedOrder(order.order_id)}>
-                {order.order_id}
-              </button>
+              <td>
+                <button onClick={() => setFocusedOrder(order.order_id)}>
+                  {order.order_id}
+                </button>
+              </td>
               <td>{order.date}</td>
               <td>{order.time}</td>
             </tr>
